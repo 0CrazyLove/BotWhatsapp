@@ -106,4 +106,5 @@ appsettings.*.local.json
 *.lock
 *.cache
 *.pid
-*.seed
+*.seed.wwebjs_auth/
+.wwebjs_cache/
