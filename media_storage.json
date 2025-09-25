@@ -1,0 +1,32 @@
+{
+  "nya": {
+    "path": "bot_media/nya.jpeg",
+    "mimetype": "image/jpeg",
+    "filename": "nya.jpeg",
+    "savedAt": "2025-09-24T02:45:25.573Z"
+  },
+  "matiazmarica": {
+    "path": "bot_media/matiazmarica.jpeg",
+    "mimetype": "image/jpeg",
+    "filename": "matiazmarica.jpeg",
+    "savedAt": "2025-09-24T02:51:04.946Z"
+  },
+  "traga": {
+    "path": "bot_media/traga.jpeg",
+    "mimetype": "image/jpeg",
+    "filename": "traga.jpeg",
+    "savedAt": "2025-09-24T03:10:19.732Z"
+  },
+  "matate": {
+    "path": "bot_media/matate.jpeg",
+    "mimetype": "image/jpeg",
+    "filename": "matate.jpeg",
+    "savedAt": "2025-09-24T03:49:34.242Z"
+  },
+  "rata": {
+    "path": "bot_media/rata.jpeg",
+    "mimetype": "image/jpeg",
+    "filename": "rata.jpeg",
+    "savedAt": "2025-09-25T01:38:24.434Z"
+  }
+}
