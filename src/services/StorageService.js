@@ -53,13 +53,18 @@ class StorageService {
 
         fs.writeFileSync(filePath, buffer);
 
+        // Guardar solo el nombre del archivo, no la ruta completa
         return {
-            path: filePath,
+            filename: fileName,  // Solo el nombre del archivo
             mimetype: mimetype,
-            filename: fileName,
             type: this.getMediaType(mimetype),
             savedAt: new Date().toISOString()
         };
+    }
+
+    getMediaPath(mediaData) {
+        // Construir la ruta completa basada en el nombre del archivo
+        return path.join(this.mediaDirectory, mediaData.filename);
     }
 
     getExtensionFromMimetype(mimetype) {

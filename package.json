@@ -1,10 +1,11 @@
 {
-  "name": "whatsapp-bot-baileys-mejorado",
-  "version": "1.1.0",
-  "main": "bot.js",
+  "name": "nekobot-whatsapp",
+  "version": "2.0.0",
+  "description": "Bot de WhatsApp con comandos de roleplay y gestión de media",
+  "main": "main.js",
   "scripts": {
-    "start": "node bot.js",
-    "dev": "node --watch bot.js"
+    "start": "node main.js",
+    "dev": "node --watch main.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.3",
@@ -15,5 +16,13 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  }
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "roleplay",
+    "gif"
+  ]
+  
 }

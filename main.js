@@ -12,9 +12,13 @@ process.on('unhandledRejection', (err) => {
 });
 
 // Manejo de cierre graceful
-process.on('SIGINT', () => {
-    logger.info('Cerrando NekoBot...');
-    process.exit(0);
+const shutdownSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT'];
+
+shutdownSignals.forEach(signal => {
+    process.on(signal, () => {
+        logger.info(`Recibida señal ${signal}. Cerrando NekoBot...`);
+        process.exit(0);
+    });
 });
 
 // Inicializar y ejecutar bot
@@ -22,11 +26,16 @@ async function main() {
     try {
         const bot = new NekoBot();
         await bot.start();
-        logger.info('NekoBot iniciado correctamente');
+        logger.info('✅ NekoBot iniciado correctamente');
     } catch (error) {
-        logger.error('Error iniciando el bot:', error);
+        logger.error('❌ Error iniciando el bot:', error);
         process.exit(1);
     }
 }
 
-main();
+// Ejecutar la aplicación
+if (require.main === module) {
+    main();
+}
+
+module.exports = { main };
