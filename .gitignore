@@ -35,6 +35,7 @@ x86/
 # WhatsApp Web Auth (contiene datos sensibles de sesión)
 .wwebjs_auth/
 .wwebjs_cache/
+.baileys_auth_info/
 
 # Bot media files
 bot_media/

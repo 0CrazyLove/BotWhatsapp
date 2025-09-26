@@ -17,7 +17,7 @@ class NekoBot {
         this.botTrigger = '.t';
         this.mediaStorage = this.loadMediaStorage();
         this.processedMessages = new Set();
-        
+
         // Sistema de comandos de roleplay con APIs de GIFs REALES
         this.roleplayCommands = this.initializeRoleplayCommands();
         this.sock = null;
@@ -224,11 +224,11 @@ class NekoBot {
     async getRandomGif(apis) {
         const randomApi = apis[Math.floor(Math.random() * apis.length)];
         const res = await axios.get(randomApi, { timeout: 10000 });
-        
+
         if (randomApi.includes('nekos.best')) return res.data.results[0].url;
         if (randomApi.includes('otakugifs.xyz')) return res.data.url;
         if (res.data && res.data.url) return res.data.url;
-        
+
         throw new Error('Respuesta API inesperada');
     }
 
@@ -237,10 +237,10 @@ class NekoBot {
         const uid = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
         const tmpInPath = path.join(tmpdir(), `in-${uid}`);
         const tmpOutPath = path.join(tmpdir(), `out-${uid}.mp4`);
-        
+
         try {
             const res = await axios({ method: 'GET', url, responseType: 'stream' });
-            
+
             // Escribir el archivo de entrada
             const writer = fs.createWriteStream(tmpInPath);
             res.data.pipe(writer);
@@ -295,9 +295,9 @@ class NekoBot {
         if (this.processedMessages.has(msgId)) {
             return;
         }
-        
+
         this.processedMessages.add(msgId);
-        
+
         if (this.processedMessages.size > 100) {
             const messagesToKeep = Array.from(this.processedMessages).slice(-100);
             this.processedMessages = new Set(messagesToKeep);
@@ -369,35 +369,35 @@ class NekoBot {
     // Enviar roleplay con API (método del bot 2 mejorado)
     async sendRoleplayWithAPI(msg, command) {
         const commandData = this.roleplayCommands[command];
-        
+
         try {
             console.log(`Solicitando GIF para comando: ${command}`);
             const gifUrl = await this.getRandomGif(commandData.apis);
             console.log(`URL obtenida: ${gifUrl}`);
-            
+
             console.log(`Convirtiendo GIF a MP4...`);
             const mp4Path = await this.convertToMp4File(gifUrl);
-            
+
             if (!fs.existsSync(mp4Path)) {
                 throw new Error('No se pudo crear el archivo MP4');
             }
-            
+
             const buffer = fs.readFileSync(mp4Path);
             const fileSize = buffer.length;
             console.log(`Enviando video MP4 (${(fileSize / 1024 / 1024).toFixed(2)} MB)...`);
-            
+
             await this.sock.sendMessage(msg.key.remoteJid, {
                 video: buffer,
                 caption: `${command.charAt(0).toUpperCase() + command.slice(1)}`,
                 gifPlayback: true, // Crucial para que WhatsApp lo muestre como GIF
                 mimetype: 'video/mp4'
             });
-            
+
             console.log(`GIF enviado correctamente como MP4 animado`);
-            
+
             // Limpiar archivo temporal
             fs.unlinkSync(mp4Path);
-            
+
         } catch (error) {
             console.error(`Error procesando GIF:`, error);
             await this.sock.sendMessage(msg.key.remoteJid, {
@@ -427,7 +427,7 @@ class NekoBot {
 
             // Descargar el archivo usando Baileys
             const buffer = await downloadMediaMessage(msg, 'buffer', {});
-            
+
             if (!buffer) {
                 await this.sock.sendMessage(msg.key.remoteJid, {
                     text: 'No se pudo descargar el archivo adjunto.'
@@ -440,14 +440,14 @@ class NekoBot {
             const isGif = mimetype.includes('gif');
             const isVideo = mimetype.includes('video');
             const isImage = mimetype.includes('image');
-            
+
             if (forceGif && !isGif && !isVideo) {
                 await this.sock.sendMessage(msg.key.remoteJid, {
                     text: 'Por favor adjunta un GIF animado o video corto.'
                 });
                 return;
             }
-            
+
             if (!isGif && !isVideo && !isImage) {
                 await this.sock.sendMessage(msg.key.remoteJid, {
                     text: 'Por favor adjunta una imagen, GIF o video corto.'
@@ -506,7 +506,7 @@ class NekoBot {
     // Enviar media guardada
     async sendStoredMedia(msg, mediaName) {
         const mediaData = this.mediaStorage[mediaName];
-        
+
         try {
             if (mediaData.path && fs.existsSync(mediaData.path)) {
                 const buffer = fs.readFileSync(mediaData.path);
@@ -543,21 +543,21 @@ class NekoBot {
     // CORREGIDO: Listar comandos - formato simplificado como solicitas
     async listCommands(msg) {
         const savedMedia = Object.keys(this.mediaStorage);
-        
+
         if (savedMedia.length === 0) {
-            await this.sock.sendMessage(msg.key.remoteJid, { 
-                text: 'No hay imágenes guardadas.\nUso: ".t save [nombre]" con imagen adjunta' 
+            await this.sock.sendMessage(msg.key.remoteJid, {
+                text: 'No hay imágenes guardadas.\nUso: ".t save [nombre]" con imagen adjunta'
             });
             return;
         }
 
         let response = `Imágenes guardadas (${savedMedia.length}):\n`;
-        
+
         // Agregar cada imagen con bullet point
         for (const mediaName of savedMedia) {
             response += `• ${mediaName}\n`;
         }
-        
+
         response += 'Uso: "NekoBot [nombre] @usuario"';
 
         await this.sock.sendMessage(msg.key.remoteJid, { text: response });
@@ -565,31 +565,30 @@ class NekoBot {
 
     // CORREGIDO: Ayuda - formato sin líneas en blanco extra
     async sendHelp(msg) {
-        const helpText = `==================== NEKOBOT AYUDA ====================
-SINTAXIS BASICA:
-  .t [comando] [@usuario]
-COMANDOS PRINCIPALES:
-  
-  >> Gestión de Media:
-  .t save [nombre]     - Guarda imagen o GIF
-  .t savegif [nombre]  - Guarda específicamente GIF
-  .t list              - Muestra todos los comandos
-  .t help              - Muestra esta ayuda
-  
-  >> Roleplay (GIFs animados):
-  .t kiss @usuario     - Envía GIF animado de beso
-  .t hug @usuario      - Envía GIF animado de abrazo
-  .t pat @usuario      - Envía GIF animado de caricias
-  .t slap @usuario     - Envía GIF animado de cachetada
+        const helpText = `NEKOBOT - Guía de Comandos
 
-EJEMPLOS DE USO:
-  .t save foto         - Guarda una imagen estática
-  .t savegif abrazo    - Guarda un GIF animado
-  .t hug @juan         - Usa GIF animado de abrazo
-  .t dance             - Acción sin mención
-  .t list              - Ver todos los comandos
+SINTAXIS
+.t [comando] [@usuario]
 
-========================================================`;
+GESTIÓN DE MEDIA
+.t save [nombre]     Guarda imagen o GIF
+.t savegif [nombre]  Guarda específicamente GIF
+.t list              Muestra todos los comandos disponibles
+.t help              Muestra esta guía
+
+ROLEPLAY
+.t kiss @usuario     Envía GIF animado de beso
+.t hug @usuario      Envía GIF animado de abrazo
+.t pat @usuario      Envía GIF animado de caricias
+.t slap @usuario     Envía GIF animado de cachetada
+
+EJEMPLOS
+.t save foto         Guarda una imagen estática
+.t savegif abrazo    Guarda un GIF animado
+.t hug @juan         Usa GIF animado de abrazo con mención
+.t dance             Acción sin mención específica
+
+Para ver la lista completa de comandos disponibles usa .t list`;
 
         await this.sock.sendMessage(msg.key.remoteJid, { text: helpText });
     }
@@ -598,7 +597,7 @@ EJEMPLOS DE USO:
     async start() {
         console.log('Iniciando NekoBot con Baileys...');
         console.log('Configurado para responder a: .t [comando]');
-        
+
         if (ffmpegStatic) {
             console.log('FFmpeg detectado - Conversión GIF→MP4 habilitada');
         } else {
@@ -617,7 +616,7 @@ EJEMPLOS DE USO:
 
         this.sock.ev.on('connection.update', (update) => {
             const { qr, connection, lastDisconnect } = update;
-            
+
             if (qr) {
                 console.log('QR generado — escanéalo:');
                 qrcode.generate(qr, { small: true });
@@ -626,7 +625,7 @@ EJEMPLOS DE USO:
             if (connection === 'close') {
                 const code = lastDisconnect?.error?.output?.statusCode;
                 console.log('Conexión cerrada, code:', code);
-                
+
                 if (code !== DisconnectReason.loggedOut) {
                     console.log('Reintentando conexión...');
                     setTimeout(() => this.start(), 5000);
@@ -644,7 +643,7 @@ EJEMPLOS DE USO:
                 console.log('  .t savegif [nombre] (específico para GIFs)');
                 console.log('  .t [nombre] @usuario');
                 console.log('  .t list');
-                
+
                 console.log('\nComandos de roleplay (GIFs animados):');
                 const roleplayList = Object.keys(this.roleplayCommands);
                 const columns = 4;
@@ -652,7 +651,7 @@ EJEMPLOS DE USO:
                     const row = roleplayList.slice(i, i + columns).map(cmd => cmd.padEnd(12)).join('');
                     console.log('  ' + row);
                 }
-                
+
                 console.log('\nGeneral:');
                 console.log('  .t help');
                 console.log('\n==========================================\n');
@@ -662,7 +661,7 @@ EJEMPLOS DE USO:
         this.sock.ev.on('messages.upsert', async (m) => {
             const msg = m.messages[0];
             if (!msg?.message || m.type !== 'notify') return;
-            
+
             await this.handleMessage(msg);
         });
     }
